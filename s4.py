@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jul 12 20:59:48 2018
-
+WHAT IS THE PURPOSE OF THIS PROGRAM BRIEFLY?
 @author: xiaojian
 """
 import sys
@@ -19,7 +19,7 @@ from matplotlib.dates import date2num,num2date
 urltime='''http://www.smast.umassd.edu:8080/thredds/dodsC/models/fvcom/NECOFS/Archive/NECOFS_GOM_WAVE/gom3v7_201411.nc?lonc[0:1:90997],latc[0:1:90997],time[0:1:719],uwind_speed[0:1:719][0:1:90997],vwind_speed[0:1:719][0:1:90997]'''
 url='''http://www.smast.umassd.edu:8080/thredds/dodsC/models/fvcom/NECOFS/Archive/NECOFS_GOM_WAVE/gom3v7_201411.nc?lonc[0:1:90997],latc[0:1:90997],time[0:1:719],uwind_speed[0:1:719][0:1:90997],vwind_speed[0:1:719][0:1:90997]'''
 time0=datetime(1858,11,17,00,00,00)
-time1=datetime(2014,11,18,00,00,00)
+time1=datetime(2014,11,18,00,00,00) # YOU ARE OUTPUTING 0-30 or 18-23?
 time2=datetime(2014,11,23,00,00,00)
 
 d1 = (time1 - datetime(1858,11,17)).total_seconds()/86400 
