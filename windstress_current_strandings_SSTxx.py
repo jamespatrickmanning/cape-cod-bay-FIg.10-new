@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Aug 03 20:55:51 2017
-
+This makes Figure 10 in the CCBay manuscript. It requires running a series of routines s1 through s4 to create input.
+It reads within this code SST served via Univ of Delaware.
 @author: xiaojian
+Modifications by JiM in Aug 2018 to add documentation and clean up unnessary lines
 """
 
 import numpy as np
@@ -12,11 +14,14 @@ import sys
 from pydap.client import open_url
 import time
 
+#HARDCODES##############
 temprange=np.arange(5,14,0.05)
 colorticks=np.linspace(5,14,10)
 time_wanted=[dt.datetime(2014,11,3,23,59,59,0),dt.datetime(2014,12,19,23,59,59,0),dt.datetime(2014,12,26,23,59,59,0)]
 url=['http://basin.ceoe.udel.edu/thredds/dodsC/ModisAqua/2014/aqua.2014307.1103.235959.D.L3.modis.NAT.v09.1000m.nc4','http://basin.ceoe.udel.edu/thredds/dodsC/ModisAqua/2014/aqua.2014323.1119.235959.D.L3.modis.NAT.v09.1000m.nc4','http://basin.ceoe.udel.edu/thredds/dodsC/ModisAqua/2014/aqua.2014360.1226.235959.D.L3.modis.NAT.v09.1000m.nc4']
 gbox=[-70.75,-69.8,41.5,42.23]
+#################################
+
 latsize=[gbox[2],gbox[3]]
 lonsize=[gbox[0],gbox[1]]
 def sh_bindata(x, y, z, xbins, ybins):
@@ -42,52 +47,30 @@ def sh_bindata(x, y, z, xbins, ybins):
             
     return xb,yb,zb_mean,zb_median,zb_std,zb_num
 #################################################
-'''
-np.save('low',lo)
-np.save('law',la)
-'''
-
 lon=np.load('low.npy')
 lat=np.load('law.npy')
 
-'''
-np.save('lo18_23',lo)
-np.save('la18_23',la)
-np.save('us18_23',us)
-np.save('vs18_23',vs)
-'''
 lo18_23=np.load('lo18_23.npy')
 la18_23=np.load('la18_23.npy')
-us18_23=np.load('us18_23.npy')
+us18_23=np.load('us18_23.npy') #GOM wave model wind from nov18-23,2014
 vs18_23=np.load('vs18_23.npy')
 
-'''
-np.save('lomb18_23',lo)
-np.save('lamb18_23',la)
-np.save('umb18_23',us)
-np.save('vmb18_23',vs)
-'''
 lo=np.load('lombx.npy')
 la=np.load('lambx.npy')
-umb18_23=np.load('umb18_23.npy')
+umb18_23=np.load('umb18_23.npy') # MASS BAY model current
 vmb18_23=np.load('vmb18_23.npy')
-'''
-np.save('lo0_30',lo)
-np.save('la0_30',la)
-np.save('us0_30',us)
-np.save('vs0_30',vs)
 
-'''
 lof=np.load('lo0_30.npy')
 laf=np.load('la0_30.npy')
-us1=np.load('us0_30.npy')
+us1=np.load('us0_30.npy') ##GOM wave model wind from all November 2014
 vs1=np.load('vs0_30.npy')
-FNCL='necscoast_worldvec.dat'
+FNCL='necscoast_worldvec.dat' #coastline
 CL=np.genfromtxt(FNCL,names=['lon','lat'])
 
 xi = np.arange(-70.75,-69.8,0.05)
 yi = np.arange(41.5,42.23,0.05)
 
+#bin average input vector fields
 xb,yb,ub_mean,ub_median,ub_std,ub_num = sh_bindata(np.array(lo18_23), np.array(la18_23), np.array(us18_23), xi, yi)
 xb,yb,vb_mean,vb_median,vb_std,vb_num = sh_bindata(np.array(lo18_23), np.array(la18_23), np.array(vs18_23), xi, yi)
 
@@ -107,10 +90,12 @@ vb = np.ma.array(vb_mean, mask=np.isnan(vb_mean))
 Q=axes[0,0].quiver(xxb,yyb,ub.T,vb.T,scale=300.)
 qk=axes[0,0].quiverkey(Q,0.1,0.5,10, r'$10m/s$', fontproperties={'weight': 'bold'},zorder=1)
 
+# here is where I plan to overlay the variance ellipses
 ub1 = np.ma.array(ub_mean1, mask=np.isnan(ub_mean))
 vb1 = np.ma.array(vb_mean1, mask=np.isnan(vb_mean))
 Q=axes[0,1].quiver(xxb,yyb,ub1.T,vb1.T,scale=4.)
 qk=axes[0,1].quiverkey(Q,0.1,0.4,0.2, r'$0.2m/s$', fontproperties={'weight': 'bold'},zorder=1)
+
 
 
 lonnn=lon
@@ -119,7 +104,7 @@ lattt=lat
 ####################################################################
 c = np.genfromtxt('strandings20141118.csv',dtype=None,names=['a1','a2','a3','a4','a5','a6','a7','a8'],delimiter=',',skip_header=1)  
 news=[]
-for a in c['a6']:
+for a in c['a6']: #what is in column 'a6'?  Is that the town/city?  If so, you need to help the person reading this code understand!!
     print a
     if a not in news:
         news.append(a)
@@ -129,7 +114,7 @@ for a in np.arange(len(news)):
     for b in np.arange(len(c['a6'])):
         if news[a]==c['a6'][b]:
             j=j+1
-    num.append(j)            
+    num.append(j) # for each town, we are counting the strandings           
     news[a]
 lon=[-70.0490,-69.9740,-69.9897,-70.0310,-69.9598,-70.0828,-70.1786,-70.6345,-70.5989,-70.1939,-70.0972,-70.9078]
 lat=[41.9948,41.8300,41.7898,41.9305,41.6821,41.7601,42.0584,41.6043,41.7413,41.7353,42.0393,42.3021]
@@ -181,15 +166,8 @@ axes[0,0].axis([-70.75,-69.8,41.5,42.23])
 axes[1,1].set_yticklabels([])
 axes[1,1].set_title('d')
 ################################################
-'''
-################################################################################
-##############################################################################
-#################################################################################
-
-
-'''
-
-
+#
+# Now add SST contours to some axis
 for i in range(len(url)):
     dataset=open_url(url[i])
     times=list(dataset['time'])  
